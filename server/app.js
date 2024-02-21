@@ -52,8 +52,10 @@ app.get("/api/students", (req, res) => {
   res.json(students);
 });
 
+//GET
+
 app.get("/cohorts", (req, res) => {
-  Cohort.find()
+  Cohort.find({})
     .then((cohorts) => {
       console.log("Retrieved cohorts ->", cohorts);
       res.json(cohorts);
@@ -64,8 +66,22 @@ app.get("/cohorts", (req, res) => {
     });
 });
 
+app.get("/cohorts/:cohortId", (req, res) => {
+  const cohortId = req.params.id;
+  Cohort.findById(cohortId)
+    .then((cohort) => {
+      console.log("Cohort obtained ", cohort);
+      res.status(200).json(cohort);
+    })
+    .catch((error) => {
+      console.error("Failed to obtain", error);
+      res.status(500).send({ error: "Failed" });
+    });
+});
+
 app.get("/students", (req, res) => {
   Student.find({})
+    .populate("cohort")
     .then((students) => {
       console.log("Retrieved students -> ", students);
       res.json(students);
@@ -73,6 +89,136 @@ app.get("/students", (req, res) => {
     .catch((error) => {
       console.error("Error while retrieving students ->", error);
       res.status(500).send({ error: "Failed to retrieve cohorts" });
+    });
+});
+
+app.get("/students/:studentId", (req, res) => {
+  const studentId = req.params.id;
+  Student.findById(studentId)
+    .populate("cohort")
+    .then((student) => {
+      console.log("Student retrieved ", student);
+      res.status(200).json(student);
+    })
+    .catch((error) => {
+      console.error("Failed to obtain", error);
+      res.status(500).send({ error: "Failed" });
+    });
+});
+app.get("/students/cohort/:cohortId", (req, res) => {
+  const cohortId = req.params.cohortId;
+  Student.find({ cohort: cohortId })
+    .then((students) => {
+      console.log("Students obtained: ", students);
+      res.status(200).json(students);
+    })
+    .catch((error) => {
+      console.error("Error while retrieving students", error);
+      res.status(500).send({ error: "Failed" });
+    });
+});
+
+// POST
+
+app.post("/cohorts", (req, res) => {
+  Cohort.create({
+    cohortSlug: req.body.cohortSlug,
+    cohortName: req.body.cohortId,
+    program: req.body.program,
+    format: req.body.format,
+    campus: req.body.campus,
+    startDate: req.body.startDate,
+    endDate: req.body.endDate,
+    inProgress: req.body.inProgress,
+    programManager: req.body.programManager,
+    leadTeacher: req.body.leadTeacher,
+    totalHours: req.body.totalHours,
+  })
+    .then((newCohort) => {
+      console.log("Recipe added ", newCohort);
+      res.status(201).send(newCohort);
+    })
+    .catch((error) => {
+      console.error("Error while creating the cohort ->", error);
+      res.status(500).send({ error: "Failed to create the cohort" });
+    });
+});
+
+app.post("/students", (req, res) => {
+  Student.create({
+    firstName: req.body.firstName,
+    lastName: req.body.languages,
+    email: req.body.email,
+    phone: req.body.phone,
+    linkedinUrl: req.body.linkedinUrl,
+    languages: req.body.languages,
+    program: req.body.program,
+    background: req.body.background,
+    image: req.body.image,
+    cohort: req.body.image,
+    projects: req.body.projects,
+  })
+    .then((newStudent) => {
+      console.log("Student added ", newStudent);
+      res.status(201).send(newStudent);
+    })
+    .catch((error) => {
+      console.error("Error while creating the student ->", error);
+      res.status(500).send({ error: "Failed to create the student" });
+    });
+});
+
+//PUT
+app.put("/cohorts/:cohortId", (req, res) => {
+  const cohortId = req.params.id;
+  Cohort.findByIdAndUpdate(cohortId, req.body, { new: true })
+    .then((updatedCohort) => {
+      console.log("Cohort updated ", updatedCohort);
+      res.status(200).json(updatedCohort);
+    })
+    .catch((error) => {
+      console.error("Failed to update", error);
+      res.status(500).send({ error: "Failed" });
+    });
+});
+
+app.put("/students/:studentId", (req, res) => {
+  const studentId = req.params.id;
+  Recipe.findByIdAndUpdate(studentId, req.body, { new: true })
+    .then((updatedStudent) => {
+      console.log("Student updated ", updatedStudent);
+      res.status(200).json(updatedStudent);
+    })
+    .catch((error) => {
+      console.error("Failed to update", error);
+      res.status(500).send({ error: "Failed" });
+    });
+});
+
+// DELETE
+app.delete("/cohorts/:cohortId", (req, res) => {
+  const cohortId = req.params.id;
+  Recipe.findByIdAndDelete(cohortId)
+    .then((result) => {
+      console.log("cohort deleted");
+      res.status(204).send();
+    })
+    .catch((error) => {
+      console.error("failed to delete", err);
+      res.status(500).send({ error: "failed" });
+    });
+});
+
+app.delete("/students/:studentId", (req, res) => {
+  const studentId = req.params.id;
+  Recipe.findByIdAndDelete(studentId)
+    .then((result) => {
+      console.log("student deleted");
+      res.status(204).send();
+    })
+    .catch((error) => {
+      console.error("failed to delete", err);
+      res.status(500).send({ error: "failed" });
     });
 });
 
