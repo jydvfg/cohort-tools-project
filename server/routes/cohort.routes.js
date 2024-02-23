@@ -1,13 +1,12 @@
-const router = require("express").Router;
-const { default: mongoose } = require("mongoose");
-const Cohort = require("../models/Cohort.model.js");
+const router = require("express").Router();
+const Cohort = require("../models/Cohort.model");
 const Student = require("../models/Student.model");
 
 router.get("/api/cohorts", (req, res) => {
   res.json(cohorts);
 });
 
-router.get("/cohorts", (req, res) => {
+router.get("/cohorts", (req, res, next) => {
   Cohort.find({})
     .then((cohorts) => {
       console.log("Retrieved cohorts ->", cohorts);
@@ -15,11 +14,11 @@ router.get("/cohorts", (req, res) => {
     })
     .catch((error) => {
       console.error("Error while retrieving cohorts ->", error);
-      res.status(500).send({ error: "Failed to retrieve cohorts" });
+      next(error)
     });
 });
 
-router.get("/cohorts/:cohortId", (req, res) => {
+router.get("/cohorts/:cohortId", (req, res, next) => {
   const cohortId = req.params.id;
   Cohort.findById(cohortId)
     .then((cohort) => {
@@ -28,11 +27,11 @@ router.get("/cohorts/:cohortId", (req, res) => {
     })
     .catch((error) => {
       console.error("Failed to obtain", error);
-      res.status(500).send({ error: "Failed" });
+      next(error)
     });
 });
 
-router.post("/cohorts", (req, res) => {
+router.post("/cohorts", (req, res, next) => {
   Cohort.create({
     cohortSlug: req.body.cohortSlug,
     cohortName: req.body.cohortId,
@@ -52,7 +51,7 @@ router.post("/cohorts", (req, res) => {
     })
     .catch((error) => {
       console.error("Error while creating the cohort ->", error);
-      res.status(500).send({ error: "Failed to create the cohort" });
+      next(error)
     });
 });
 
@@ -65,7 +64,7 @@ router.put("/cohorts/:cohortId", (req, res) => {
     })
     .catch((error) => {
       console.error("Failed to update", error);
-      res.status(500).send({ error: "Failed" });
+      next(error)
     });
 });
 

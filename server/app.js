@@ -9,14 +9,16 @@ const app = express();
 require("./config")(app);
 
 const indexRoutes = require("./routes/index.routes");
-app.use(indexRoutes);
+app.use("/", indexRoutes);
 
 const cohortRouter = require("./routes/cohort.routes");
-app.use(cohortRouter);
+app.use("", cohortRouter);
 
 const studentRouter = require("./routes/student.routes");
-app.use(studentRouter);
+app.use("", studentRouter);
 
-require("./error-handling")(app);
+const { errorHandler, notFoundHandler } = require("./error-handling");
+app.use(errorHandler);
+app.use(notFoundHandler);
 
 module.exports = app;

@@ -1,5 +1,4 @@
-const router = require("express").Router;
-const { default: mongoose } = require("mongoose");
+const router = require("express").Router();
 const Cohort = require("../models/Cohort.model.js");
 const Student = require("../models/Student.model");
 
@@ -7,7 +6,7 @@ router.get("/api/students", (req, res) => {
   res.json(students);
 });
 
-router.get("/students", (req, res) => {
+router.get("/students", (req, res, next) => {
   Student.find({})
     .populate("cohort")
     .then((students) => {
@@ -15,12 +14,11 @@ router.get("/students", (req, res) => {
       res.json(students);
     })
     .catch((error) => {
-      console.error("Error while retrieving students ->", error);
-      res.status(500).send({ error: "Failed to retrieve cohorts" });
+      next(error);
     });
 });
 
-router.get("/students/:studentId", (req, res) => {
+router.get("/students/:studentId", (req, res, next) => {
   const studentId = req.params.id;
   Student.findById(studentId)
     .populate("cohort")
@@ -30,11 +28,11 @@ router.get("/students/:studentId", (req, res) => {
     })
     .catch((error) => {
       console.error("Failed to obtain", error);
-      res.status(500).send({ error: "Failed" });
+      next(error);
     });
 });
 
-router.get("/students/cohort/:cohortId", (req, res) => {
+router.get("/students/cohort/:cohortId", (req, res, next) => {
   const cohortId = req.params.cohortId;
   Student.find({ cohort: cohortId })
     .populate("cohort")
@@ -44,11 +42,11 @@ router.get("/students/cohort/:cohortId", (req, res) => {
     })
     .catch((error) => {
       console.error("Error while retrieving students", error);
-      res.status(500).send({ error: "Failed" });
+      next(error);
     });
 });
 
-router.post("/students", (req, res) => {
+router.post("/students", (req, res, next) => {
   Student.create({
     firstName: req.body.firstName,
     lastName: req.body.languages,
@@ -68,11 +66,11 @@ router.post("/students", (req, res) => {
     })
     .catch((error) => {
       console.error("Error while creating the student ->", error);
-      res.status(500).send({ error: "Failed to create the student" });
+      next(error);
     });
 });
 
-router.put("/students/:studentId", (req, res) => {
+router.put("/students/:studentId", (req, res, next) => {
   const studentId = req.params.id;
   Recipe.findByIdAndUpdate(studentId, req.body, { new: true })
     .then((updatedStudent) => {
@@ -81,7 +79,7 @@ router.put("/students/:studentId", (req, res) => {
     })
     .catch((error) => {
       console.error("Failed to update", error);
-      res.status(500).send({ error: "Failed" });
+      next(error);
     });
 });
 
